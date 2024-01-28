@@ -36,6 +36,7 @@ public class PortalGun_Player : MonoBehaviour
     public void Fire(GameEnum.PortalEnum currentProjectile)
     {
         activePortal[(int)currentProjectile] = Instantiate(projectilesPrefabs[(int)currentProjectile], firePoint.position, Quaternion.identity);
+        playerController.Play_SFX(PlayerController.SFX.Fire);
         if (playerController.IsFacingRight)
             activePortal[(int)currentProjectile].transform.GetComponentInChildren<Rigidbody2D>().velocity = transform.right * force;
         else

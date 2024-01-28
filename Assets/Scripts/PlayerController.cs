@@ -41,7 +41,13 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Rigidbody2D RB;
     private Vector2 _moveInput;
 
-
+    [Header("SFX")] 
+    [SerializeField] private AudioClip[] audioClip;
+    [SerializeField] private AudioSource audioSource;
+    
+    [Header("Animation")]
+    [SerializeField] private Animator _animator;
+    
     [field: Header("PlayerStates")]
     [field: SerializeField]
     public bool IsFacingRight { get; private set; }
@@ -50,6 +56,7 @@ public class PlayerController : MonoBehaviour
     //Jump
     private bool _isJumpCut;
     private bool _isJumpFalling;
+    private bool isGrounded;
 
 
     //Timers
@@ -91,8 +98,12 @@ public class PlayerController : MonoBehaviour
 
         if (!IsJumping)
         {
-            if (Physics2D.OverlapBox(_groundCheckPoint.position, _groundCheckSize, 0, _groundLayer) && !IsJumping) //checks if set box overlaps with ground
+            if (CheckisGrounded() && !IsJumping)
+            {
+                //checks if set box overlaps with ground
                 LastOnGroundTime = coyoteTime;
+            
+            }
         }
 
         #region JUMP CHECKS
@@ -120,6 +131,7 @@ public class PlayerController : MonoBehaviour
             _isJumpFalling = false;
             Jump();
         }
+
         #endregion
 
         #region GRAVITY
@@ -130,6 +142,7 @@ public class PlayerController : MonoBehaviour
             SetGravityScale(gravityScale * fastFallGravityMult);
             //Caps maximum fall speed, so when falling over large distances we don't accelerate to insanely high speeds
             RB.velocity = new Vector2(RB.velocity.x, Mathf.Max(RB.velocity.y, -maxFastFallSpeed));
+            
         }
         else if ((IsJumping || _isJumpFalling) && Mathf.Abs(RB.velocity.y) < jumpHangTimeThreshold)
         {
@@ -148,7 +161,7 @@ public class PlayerController : MonoBehaviour
             SetGravityScale(gravityScale);
         }
         #endregion
-
+        _animator.SetBool("IsGrounded",CheckisGrounded());
 
 
     }
@@ -226,6 +239,8 @@ public class PlayerController : MonoBehaviour
             force -= RB.velocity.y;
 
         RB.AddForce(Vector2.up * force, ForceMode2D.Impulse);
+        _animator.SetTrigger("Jump");
+        Play_SFX(SFX.Jump);
         #endregion
     }
 
@@ -242,6 +257,21 @@ public class PlayerController : MonoBehaviour
         if (isMovingRight != IsFacingRight)
             Turn();
     }
+
+    public bool CheckisGrounded()
+    {
+        if (Physics2D.OverlapBox(_groundCheckPoint.position, _groundCheckSize, 0, _groundLayer))
+        {
+            isGrounded = true;
+            return true;
+        }
+        else
+        {
+            isGrounded = false;
+            return false;
+        }
+
+    }
     private void Turn()
     {
         //stores scale and flips the player along the x axis, 
@@ -250,6 +280,16 @@ public class PlayerController : MonoBehaviour
         transform.localScale = scale;
 
         IsFacingRight = !IsFacingRight;
+    }
+
+    public void Play_SFX(SFX sfx)
+    {
+        audioSource.PlayOneShot(audioClip[(int)sfx]);
+    }
+    
+    public enum SFX{
+        Jump=0,
+        Fire=1
     }
     #region EDITOR METHODS
     private void OnDrawGizmosSelected()
