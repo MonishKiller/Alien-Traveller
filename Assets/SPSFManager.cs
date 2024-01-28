@@ -8,6 +8,7 @@ public class SPSFManager : MonoBehaviour
     [SerializeField] private PausePanel pausePanel;
     [SerializeField] private Button BTN_Pause;
     [SerializeField] public FinishPanel finishPanel;
+    [SerializeField] public Lose losePanel;
     private void Start()
     {
         this.BTN_Pause?.onClick.AddListener(OnClickPauseBTN);

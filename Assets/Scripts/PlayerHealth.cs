@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class PlayerHealth : MonoBehaviour
 {
+    [SerializeField] private SPSFManager SPSFManager;
     public int maxhealth = 100;
     public int currentHealth;
     public HealthBar heathBar;
@@ -24,7 +25,8 @@ public class PlayerHealth : MonoBehaviour
         Instantiate(destroyEffect, this.transform.position, quaternion.identity);
         if (currentHealth <= 0)
         {
-            MissionCompletion.Instance.LoadCurrentScene();
+            SPSFManager.losePanel.ShowPanel();
+            Destroy(this.gameObject);
         }
     }
     public void DestroyPlayer()
